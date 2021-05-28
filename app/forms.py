@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField, IntegerField
 from wtforms.validators import DataRequired, ValidationError, Email, EqualTo, NumberRange
-from app.models import User
+from app.models import User, ChoreList
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 
 
@@ -31,16 +31,49 @@ class RegistrationForm(FlaskForm):
         if user is not None:
             raise ValidationError('Please use a different email address.')
 
+# Query Factory
 
-def user_type_query():
+
+def user_parent_query():
     return User.query.filter_by(user_type='Parent')
+
+
+def user_child_query():
+    return User.query.filter(User.user_type.isnot('Parent'))
+
+
+def chore_query():
+    return ChoreList.query.all()
 
 
 class AddChoreForm(FlaskForm):
     description = StringField('Description', validators=[DataRequired()])
     occurrence = SelectField('Frequency', validators=[DataRequired()], choices=['Daily', 'Weekly', 'Monthly'])
-    created_by = QuerySelectField(query_factory=user_type_query,  validators=[DataRequired()], get_label='username')
+    created_by = QuerySelectField(query_factory=user_parent_query,  validators=[DataRequired()],
+                                                                get_label='username')
     value = IntegerField('Chore Value', validators=[DataRequired(), NumberRange(0, 50, "Number between 0 and 50")])
 
     submit = SubmitField('Add Chore')
+
+
+class EditChoreForm(FlaskForm):
+    description = StringField('Description', validators=[DataRequired()])
+    occurrence = SelectField('Frequency', validators=[DataRequired()], choices=['Daily', 'Weekly', 'Monthly'])
+    created_by = QuerySelectField(query_factory=user_parent_query,  validators=[DataRequired()],
+                                  get_label='username')
+    value = IntegerField('Chore Value', validators=[DataRequired(), NumberRange(0, 50, "Number between 0 and 50")])
+
+    submit = SubmitField('Edit Chore')
+
+
+class AssignChoreForm(FlaskForm):
+    assign_to = QuerySelectField(query_factory=user_child_query, validators=[DataRequired()],
+                                 get_label='username')
+    assign_chore = QuerySelectField(query_factory=chore_query, validators=[DataRequired()], get_label='description')
+
+    chore_occurrence = StringField('Occurrence', render_kw={'readonly': True})
+    chore_value = StringField('Value', render_kw={'readonly': True})
+    assigned_by = QuerySelectField(query_factory=user_parent_query,  validators=[DataRequired()],
+                                  get_label='username', default='Select')
+    submit = SubmitField('Save')
 

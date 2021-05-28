@@ -3,7 +3,11 @@
 {% block title %}
     {% if title %} {{ title }} - Chores App {% else %} Welcome to Chores App {% endif %}
 {% endblock %}
+{% block head %}
+{{ super() }}
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 
+{% endblock %}
 
 {% block navbar %}
 
@@ -22,7 +26,7 @@
                 <ul class="nav navbar-nav">
                     <li><a href="{{ url_for('index') }}">Home</a></li>
                     <li><a href="{{ url_for('add_chore') }}">Chores List</a></li>
-                    <li><a href="{{ url_for('add_chore') }}">Assign Chores</a></li>
+                    <li><a href="{{ url_for('assign_chore') }}">Assign Chores</a></li>
                     <li><a href="{{ url_for('add_chore') }}">a new link</a></li>
                     <li><a href="{{ url_for('add_chore') }}">Another new link</a></li>
 

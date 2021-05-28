@@ -1,6 +1,6 @@
 from app import app, db
 from app.models import User, ChoreList, ChoreProgress, ChoreAssignments
-
+import time
 
 @app.shell_context_processor
 def make_shell_context():
@@ -8,20 +8,10 @@ def make_shell_context():
             'ChoreAssignments': ChoreAssignments}
 
 
-"""
-<script>
- const btnDelete = document.querySelectorAll('.btn-delete');
- if(btnDelete) {
-    const btnArray = Array.from(btnDelete);
-    btnArray.forEach((btn) => {
-        btn.addEventListener('click', (e) => {
-            if(!confirm('Are you sure you want to delete it?')){
-                e.preventDefault();
-            }
-        });
-    })
- }
-
-</script>
-
-"""
+@app.cli.command()
+def scheduled():
+    """Run Scheduled Jobs"""
+    print('importing feeds...')
+    time.sleep(5)
+    print('Users: ', str(User.query.all()))
+    print('DONE!!')
