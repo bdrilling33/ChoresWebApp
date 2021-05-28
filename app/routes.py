@@ -118,18 +118,6 @@ def chore_edit(id=None):
 #
 #     return redirect(url_for('add_chore'))
 
-# TODO: Load Chore Edit to a modal.  use this route to fill modal form with selected row data
-# @app.route('/api/chorelist', methods=['POST', 'GET'])
-# def get_chore_list():
-#     chore_schema = ChoreListSchema()
-#     chore = ChoreList.query.filter_by(id=request.form['id']).first()
-#     output = chore_schema.dump(chore)
-#     form = AddChoreForm(obj=chore)
-#     print(output)
-#     # return render_template('edit_chore.html', form=form)
-#     # #return jsonify({'chore': output})
-#     return jsonify({'chore': output})
-
 
 @app.route('/chore_assignments', methods=['POST', 'GET'])
 def assign_chore():
@@ -152,6 +140,28 @@ def assign_chore():
     return render_template('assign_chores.html', form=form, assigned_chores=assigned_chores)
 
 
+@app.route('/chore_assignments/<id>/edit', methods=['GET', 'POST'])  # TODO finish this. add form, save changes etc
+def chore_edit(id=None):
+
+    chore = ChoreList.query.filter_by(id=id).first()
+    form = EditChoreForm(obj=chore)
+    if form.validate_on_submit():
+
+        chore.description = form.description.data
+        chore.occurrence = form.occurrence.data
+        chore.created_by_id = form.created_by.data.id
+        chore.value = int(form.value.data)
+        print(chore.value)
+        print(form.value.data)
+        print('edit submitted')
+        db.session.commit()
+        flash('Chore {} has been updated'.format(form.description.data))
+        return redirect(url_for('add_chore'))
+    print(form.errors)
+    return render_template('edit_chore.html', title='Edit Chore', form=form)
+
+
+################## API ROUTES #############################
 @app.route('/api/get_chore_data', methods=['POST', 'GET'])
 def get_chore_data():
 
@@ -164,3 +174,15 @@ def get_chore_data():
     return {'chore': output}
     # return redirect(url_for('assign_chore'))
 
+
+# TODO: Load Chore Edit to a modal.  use this route to fill modal form with selected row data
+# @app.route('/api/chorelist', methods=['POST', 'GET'])
+# def get_chore_list():
+#     chore_schema = ChoreListSchema()
+#     chore = ChoreList.query.filter_by(id=request.form['id']).first()
+#     output = chore_schema.dump(chore)
+#     form = AddChoreForm(obj=chore)
+#     print(output)
+#     # return render_template('edit_chore.html', form=form)
+#     # #return jsonify({'chore': output})
+#     return jsonify({'chore': output})
