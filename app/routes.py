@@ -1,8 +1,8 @@
 from app import app
 from flask import render_template, flash, redirect, url_for, request, jsonify
-from app.forms import LoginForm, RegistrationForm, AddChoreForm, EditChoreForm, AssignChoreForm
+from app.forms import LoginForm, RegistrationForm, AddChoreForm, EditChoreForm, AssignChoreForm, EditUserForm
 from flask_login import current_user, login_user, logout_user, login_required, user_needs_refresh
-from app.models import User, ChoreList, ChoreAssignments, ChoreListSchema
+from app.models import User, ChoreList, ChoreAssignments, ChoreListSchema, UserListSchema
 from werkzeug.urls import url_parse
 from app import db, ma
 import json
@@ -106,17 +106,18 @@ def chore_edit(id=None):
     print(form.errors)
     return render_template('edit_chore.html', title='Edit Chore', form=form)
 
+
 # TODO: Add model and call this route to delete chore from chore list
-# @app.route('/chore/<id>/delete', methods=['GET', 'POST'])
-# def delete_chore(id=None):
-#
-#     delete_row = ChoreList.query.get(id)
-#
-#     db.session.delete(delete_row)
-#     db.session.commit()
-#     flash('Chore {} has been deleted'.format(delete_row.description))
-#
-#     return redirect(url_for('add_chore'))
+@app.route('/chore/<id>/delete', methods=['GET', 'POST'])
+def delete_chore(id=None):
+
+    delete_row = ChoreList.query.get(id)
+
+    db.session.delete(delete_row)
+    db.session.commit()
+    flash('Chore {} has been deleted'.format(delete_row.description))
+
+    return redirect(url_for('add_chore'))
 
 
 @app.route('/chore_assignments', methods=['POST', 'GET'])
@@ -140,8 +141,60 @@ def assign_chore():
     return render_template('assign_chores.html', form=form, assigned_chores=assigned_chores)
 
 
+@login_required
+@app.route('/users', methods=['GET', 'POST'])
+def users():
+
+    user_list = User.query.all()
+
+    form = RegistrationForm()
+
+    if form.validate_on_submit():
+        user = User(username=form.username.data, email=form.email.data, user_type=form.type.data)
+        user.set_password(form.password.data)
+        db.session.add(user)
+        db.session.commit()
+        flash('{} is now a registered user!'.format(form.username.data))
+        return redirect(url_for('users'))
+
+    return render_template('users.html', form=form, users=user_list)
+
+
+@app.route('/users/<id>/edit', methods=['GET', 'POST'])  # TODO finish this. add form, save changes etc
+def user_edit(id=None):
+
+    user = User.query.filter_by(id=id).first()
+    form = EditUserForm(obj=user)
+    if form.validate_on_submit():
+
+        user.username = form.username.data
+        user.email = form.email.data
+        user.user_type = form.user_type.data
+        user.point_balance = int(form.point_balance.data)
+        user.cash_balance = int(form.cash_balance.data)
+        user.is_active = form.is_active.data
+        db.session.commit()
+        flash('User {} has been updated'.format(form.username.data))
+        return redirect(url_for('users'))
+    print(form.errors)
+    return render_template('edit_user.html', title='User Management', form=form)
+
+
+# TODO: Add model and call this route to delete user from user list
+@app.route('/users/<id>/delete', methods=['GET', 'POST'])
+def user_chore(id=None):
+    #  Doesnt actually delete, but marks as inactive.
+    delete_row = User.query.get(id)
+    delete_row.is_active = 'No'
+    db.session.commit()
+    flash('User {} has been inactivated'.format(delete_row.username))
+
+    return redirect(url_for('users'))
+
+
+
 @app.route('/chore_assignments/<id>/edit', methods=['GET', 'POST'])  # TODO finish this. add form, save changes etc
-def chore_edit(id=None):
+def assignment_edit(id=None):
 
     chore = ChoreList.query.filter_by(id=id).first()
     form = EditChoreForm(obj=chore)
@@ -173,6 +226,17 @@ def get_chore_data():
 
     return {'chore': output}
     # return redirect(url_for('assign_chore'))
+
+
+@app.route('/api/get_user_data', methods=['POST', 'GET'])
+def get_user_data():
+
+    x = json.loads(request.data)
+    user_schema = UserListSchema()
+    user = User.query.filter_by(id=x['description']).first()
+    output = user_schema.dump(user)
+
+    return {'user': output}
 
 
 # TODO: Load Chore Edit to a modal.  use this route to fill modal form with selected row data

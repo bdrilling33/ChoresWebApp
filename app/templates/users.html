@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block app_content %}
+
+
+    <table id="user_table" class="table">
+  <thead>
+    <tr>
+      <th scope="col">ID</th>
+      <th scope="col">Username</th>
+      <th scope="col">email</th>
+      <th scope="col">User Type</th>
+      <th scope="col">Point Balance</th>
+      <th scope="col">Cash Balance</th>
+      <th scope="col">Is Active</th>
+      <th scope="col">Edit/Delete</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for user in users %}
+
+    <tr id="{{ user.id }}" class="{{ user.is_active }}">
+
+        <th scope="row">{{ user.id }} </th>
+        <td>{{ user.username }}</td>
+        <td>{{ user.email }}</td>
+        <td>{{ user.user_type }}</td>
+        <td>{{ user.point_balance }}</td>
+        <td>{{ user.cash_balance }}</td>
+        <td>{{ user.is_active }}</td>
+        <td>
+
+            <a  href="/users/{{ user.id }}/edit" data-toggle="modal"
+                                                class="btn btn-warning btn-edit btn-sm">Edit</a>
+            <a  href="/users/{{ user.id }}/delete" data-toggle="modal"
+                                                class="btn btn-danger btn-delete btn-sm">Delete</a>
+        </td>
+    </tr>
+
+    {% endfor %}
+  </tbody>
+    </table>
+
+
+<div class="form-check">
+  <input class="form-check-input" type="checkbox" value="show_inactive" id="flexCheckDefault">
+  <label class="form-check-label" for="flexCheckDefault">
+    Show inactive Users?
+  </label>
+</div>
+
+
+<button id="modalbutton" type="button" class="btn btn-primary" data-toggle="modal" data-target="#add_user_modal">
+  Add User
+</button>
+
+
+
+<!-- Modal Add New User-->
+<div class="modal fade" id="add_user_modal" tabindex="-1" role="dialog" aria-labelledby="addusereModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="assignChoreodalLabel">Assign Chore</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+
+            <div class="row">
+            <div class="col-md-4">
+                {{ wtf.quick_form(form) }}
+            </div>
+            </div>
+      <div class="modal-footer">
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+
+<!-- Modal Edit New User-->
+<div class="modal fade" id="edit_user_modal" tabindex="-1" role="dialog" aria-labelledby="editusereModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editModalLabel">Assign Chore</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+
+            <div class="row">
+            <div class="col-md-4">
+                {{ wtf.quick_form(form) }}
+            </div>
+            </div>
+      <div class="modal-footer">
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+
+
+<script>
+    <!-- show/hide inactive users    -->
+    $(document).ready(function() {
+            $('.No').hide();
+        $('#flexCheckDefault').change(function() {
+            $('.No').toggle();
+        })
+    });
+
+
+     const btnDelete = document.querySelectorAll('.btn-delete');
+     if(btnDelete) {
+        const btnArray = Array.from(btnDelete);
+        btnArray.forEach((btn) => {
+            btn.addEventListener('click', (e) => {
+                if(!confirm('Are you sure you want to delete it?')){
+                    e.preventDefault();
+                }
+            });
+        })
+     }
+
+</script>
+
+
+
+{% endblock %}

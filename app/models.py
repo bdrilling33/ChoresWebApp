@@ -16,6 +16,7 @@ class User(UserMixin, db.Model):
     cash_balance = db.Column(db.Integer, default=0)
     assigned_chores = db.relationship('ChoreAssignments', backref='assigned_to')
     created_chores = db.relationship('ChoreList', backref='created_by')
+    is_active = db.Column(db.String(3), default='Yes')
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -38,7 +39,6 @@ class ChoreList(db.Model):
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     created_by_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     value = db.Column(db.Integer)
-
 
     def __repr__(self):
         return '<Chore {}>'.format(self.id)
@@ -66,7 +66,6 @@ class ChoreAssignments(db.Model):
     assigned_user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     assigned_by_id = db.Column(db.Integer)
 
-
     def __repr__(self):
         return '<ChoreAssignment {}>'.format(self.id)
 
@@ -81,38 +80,19 @@ class ChoreListSchema(ma.SQLAlchemySchema):
     value = ma.auto_field()
 
 
+class UserListSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = User
+    id = ma.auto_field()
+    username = ma.auto_field()
+    email = ma.auto_field()
+    user_type = ma.auto_field()
+    point_balance = ma.auto_field()
+    cash_balance = ma.auto_field()
+    is_active = ma.auto_field()
+
+
 @login.user_loader
 def load_user(id):
     return User.query.get(int(id))
 
-# $(document).ready(function() {
-#     $('.btn-edit').on('click', function() {
-#         var id = $(this).parent().parent().attr('id');
-#         console.log(id);
-#         req = $.ajax({
-#             url: '/api/chorelist',
-#             type: 'POST',
-#             data: {id: id},
-#             success: function(data) {
-#             $('#editChore').modal('show');
-#             $('#view_description').val(data.chore.description);
-#             $('#view_occurrence').val(data.chore.occurrence);
-#             $('#view_created_by').val(data.chore.created_by);
-#             $('#view_value').val(data.chore.value);
-#             $('#editForm').attr("action", "/chore/" + data.chore.id + "/edit");
-#
-#
-#
-#
-#
-#
-#         }
-#
-#
-#         });
-#
-#
-#     });
-#
-#
-# });

@@ -31,15 +31,39 @@ class RegistrationForm(FlaskForm):
         if user is not None:
             raise ValidationError('Please use a different email address.')
 
+
+class EditUserForm(FlaskForm):
+    username = StringField('Username', validators=[DataRequired()])
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    # password = PasswordField('Password', validators=[DataRequired()])
+    # password2 = PasswordField(
+    #     'Repeat Password', validators=[DataRequired(), EqualTo('password')])
+    point_balance = IntegerField('Point Balance', validators=[DataRequired()])
+    cash_balance = IntegerField('Cash Balance', validators=[DataRequired()])
+    user_type = SelectField('User Type', validators=[DataRequired()], choices=['Parent', 'Child', 'Friend'])
+    is_active = SelectField('Is Active', validators=[DataRequired()], choices=['Yes', 'No'])
+    submit = SubmitField('Save Changes')
+
+    # def validate_username(self, username):
+    #     user = User.query.filter_by(username=username.data).first()
+    #     if user is not None:
+    #         raise ValidationError('Please use a different username')
+    #
+    # def validate_email(self, email):
+    #     user = User.query.filter_by(email=email.data).first()
+    #     if user is not None:
+    #         raise ValidationError('Please use a different email address.')
+
+
 # Query Factory
 
 
 def user_parent_query():
-    return User.query.filter_by(user_type='Parent')
+    return User.query.filter_by(user_type='Parent', is_active='Yes')
 
 
 def user_child_query():
-    return User.query.filter(User.user_type.isnot('Parent'))
+    return User.query.filter(User.user_type.isnot('Parent'), User.is_active.is_('Yes')).all()
 
 
 def chore_query():
