@@ -38,6 +38,7 @@ class ChoreList(db.Model):
     occurrence = db.Column(db.String(10))  # Daily, Weekly, Monthly, One_Off
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     created_by_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    assigned_chores = db.relationship('ChoreAssignments', backref='assignment_id')
     value = db.Column(db.Integer)
 
     def __repr__(self):
@@ -49,11 +50,11 @@ class ChoreProgress(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     chore_id = db.Column(db.Integer)
     status = db.Column(db.String(10))  # Complete, Incomplete, Pending, Expired
-    assigned_user_id = db.Column(db.Integer)
+    assigned_user = db.Column(db.Integer)
+    description = db.Column(db.String(128))
     due_date = db.Column(db.DateTime)  # based on the chore occurrence
-
-    def as_dict(self):
-        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+    value = db.Column(db.Integer)
+    occurrence = db.Column(db.String(10))
 
     def __repr__(self):
         return '<ChoreProgress {}>'.format(self.status)
@@ -62,9 +63,11 @@ class ChoreProgress(db.Model):
 class ChoreAssignments(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
-    chore_id = db.Column(db.Integer)
+    chore_id = db.Column(db.Integer, db.ForeignKey('chore_list.id'))
+
     assigned_user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     assigned_by_id = db.Column(db.Integer)
+    is_active = db.Column(db.String(3), default='Yes')
 
     def __repr__(self):
         return '<ChoreAssignment {}>'.format(self.id)

@@ -2,31 +2,22 @@ from app import app
 from flask import render_template, flash, redirect, url_for, request, jsonify
 from app.forms import LoginForm, RegistrationForm, AddChoreForm, EditChoreForm, AssignChoreForm, EditUserForm
 from flask_login import current_user, login_user, logout_user, login_required, user_needs_refresh
-from app.models import User, ChoreList, ChoreAssignments, ChoreListSchema, UserListSchema
+from app.models import User, ChoreList, ChoreAssignments, ChoreListSchema, UserListSchema, ChoreProgress
 from werkzeug.urls import url_parse
 from app import db, ma
 import json
+from datetime import datetime
 
 @app.route('/')
 @app.route('/index')
-@login_required
+# @login_required
 def index():
 
-    posts = [
-        {
-            'author': {'username': 'John'},
-            'body': 'Beautiful day in portland'
-        },
-        {
-            'author': {'username': 'Susan'},
-            'body': 'The advenders movie is cool!'
-        },
-        {
-            'author': {'username': 'Brice'},
-            'body': "I'm starting to get the hang of this!"
-        }
-    ]
-    return render_template('index.html', title='Home', posts=posts)
+    choreprogress = ChoreProgress.query.all()
+    current_date = datetime.now().strftime('%A, %B %m, %Y')
+    print(current_date)
+    print(datetime.now())
+    return render_template('index.html', title='Home', chores=choreprogress, date=current_date)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -237,6 +228,11 @@ def get_user_data():
     output = user_schema.dump(user)
 
     return {'user': output}
+
+@app.route('/chore_progress/<id>/completed', methods=['POST', 'GET'])
+def choreComplete(id=None):
+
+    chore = ChoreProgress.query.filter_by(id=id)
 
 
 # TODO: Load Chore Edit to a modal.  use this route to fill modal form with selected row data

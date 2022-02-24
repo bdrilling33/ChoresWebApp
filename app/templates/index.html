@@ -3,11 +3,42 @@
 {% block app_content %}
 
         <h1>
-            Hi, {{ current_user.username }}!</h1>
+            Today is, {{ date }}!</h1>
 
-        {% for post in posts %}
-        <div><p>{{ post.author.username }} says: <b>{{ post.body }}</b></p></div>
-        {% endfor %}
+        <table id="choreassignments" class="table">
+          <thead>
+            <tr>
+              <th scope="col">Assigned To</th>
+              <th scope="col">Description</th>
+              <th scope="col">Frequency</th>
+              <th scope="col">Value</th>
+              <th scope="col">Completed</th>
+              <th scope="col">Approved</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for chore in chores %}
+
+            <tr id="{{ chore.id }}">
+
+                <th scope="row">{{ chore.assigned_user }} </th>
+                <td id="desc">{{ chore.description }}</td>
+                <td id="occr">{{ chore.occurrence }}</td>
+                <td id="by">{{ chore.value }}</td>
+                <td>
+
+                    <a  href="/chore_progress/{{ chore.id }}/completed"
+                                                        class="btn btn-warning btn-edit btn-sm">Completed!!</a>
+                    <a  href="/chore_progress/{{ chore.id }}/approvetoggle"
+                                                        class="btn btn-danger btn-delete btn-sm">Incomplete</a>
+                </td>
+                <td> {{ chore.status }}</td>
+            </tr>
+
+            {% endfor %}
+          </tbody>
+            </table>
+
 
 {% endblock %}
 
