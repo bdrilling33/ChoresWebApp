@@ -87,7 +87,7 @@ class EditChoreForm(FlaskForm):
                                   get_label='username')
     value = IntegerField('Chore Value', validators=[DataRequired(), NumberRange(0, 50, "Number between 0 and 50")])
 
-    submit = SubmitField('Edit Chore')
+    submit = SubmitField('Save Changes')
 
 
 class AssignChoreForm(FlaskForm):

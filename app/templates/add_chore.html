@@ -7,7 +7,6 @@
     <table id="chorelist" class="table">
   <thead class="thead-dark">
     <tr>
-      <th scope="col">#</th>
       <th scope="col">Description</th>
       <th scope="col">Frequency</th>
       <th scope="col">Created By</th>
@@ -19,8 +18,7 @@
     {% for chore in chores %}
     <tr id="{{ chore.id }} ">
 
-        <th id="did" scope="row">{{ chore.id }} </th>
-        <td id="desc">{{ chore.description }}</td>
+        <td id="desc"><strong>{{ chore.description }}</strong></td>
         <td id="occr">{{ chore.occurrence }}</td>
         <td id="by">{{ chore.created_by.username }}</td>
         <td id="value">{{ chore.value }}</td>

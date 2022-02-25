@@ -14,7 +14,7 @@ from datetime import datetime
 def index():
 
     choreprogress = ChoreProgress.query.all()
-    current_date = datetime.now().strftime('%A, %B %m, %Y')
+    current_date = datetime.now().strftime('%A, %B %d, %Y')
     print(current_date)
     print(datetime.now())
     return render_template('index.html', title='Home', chores=choreprogress, date=current_date)
