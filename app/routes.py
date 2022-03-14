@@ -1,6 +1,7 @@
 from app import app
 from flask import render_template, flash, redirect, url_for, request, jsonify
-from app.forms import LoginForm, RegistrationForm, AddChoreForm, EditChoreForm, AssignChoreForm, EditUserForm
+from app.forms import LoginForm, RegistrationForm, AddChoreForm, EditChoreForm, AssignChoreForm, EditUserForm, \
+    ChoreApproval
 from flask_login import current_user, login_user, logout_user, login_required, user_needs_refresh
 from app.models import User, ChoreList, ChoreAssignments, ChoreListSchema, UserListSchema, ChoreProgress
 from werkzeug.urls import url_parse
@@ -164,6 +165,7 @@ def user_edit(id=None):
         user.point_balance = int(form.point_balance.data)
         user.cash_balance = int(form.cash_balance.data)
         user.is_active = form.is_active.data
+        user.approval_code = form.approval_code.data
         db.session.commit()
         flash('User {} has been updated'.format(form.username.data))
         return redirect(url_for('users'))
@@ -232,7 +234,40 @@ def get_user_data():
 @app.route('/chore_progress/<id>/completed', methods=['POST', 'GET'])
 def choreComplete(id=None):
 
-    chore = ChoreProgress.query.filter_by(id=id)
+    chore = ChoreProgress.query.filter_by(id=id).first()
+    print(chore)
+    chore.status = 'Pending'
+    db.session.commit()
+    flash('Chore {} is pending approval'.format(chore.description))
+
+    return redirect(url_for('index'))
+
+
+@app.route('/chore_progress/<id>/approve', methods=['POST', 'GET'])
+def choreApprove(id=None):
+    print(id)
+    chore = ChoreProgress.query.filter_by(id=id).first()
+    form = ChoreApproval(obj=chore)
+
+    if form.validate_on_submit():
+        print(form.approved_by.data.username)
+        approver = User.query.filter_by(username=form.approved_by.data.username).first()
+        print(approver.approval_code)
+        print(form.approval_code.data)
+        if form.approval_code.data == approver.approval_code:
+
+            chore.status = 'Completed'
+            User.query.filter_by(username=chore.assigned_user).first().point_balance += chore.value
+            db.session.commit()
+            flash('Chore {} has been approved'.format(chore.description))
+            return redirect(url_for('index'))
+        else:
+            flash('Approval Code is incorrect')
+            form.approval_code.data = ''
+    return render_template('approve_chore.html', title='Approve Chore', form=form)
+
+
+
 
 
 # TODO: Load Chore Edit to a modal.  use this route to fill modal form with selected row data

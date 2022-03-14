@@ -19,6 +19,7 @@ class RegistrationForm(FlaskForm):
     password2 = PasswordField(
         'Repeat Password', validators=[DataRequired(), EqualTo('password')])
     type = SelectField('User Type', validators=[DataRequired()], choices=['Parent', 'Child', 'Friend'])
+    approval_code = IntegerField('Approver Code', validators=[DataRequired()])
     submit = SubmitField('Register')
 
     def validate_username(self, username):
@@ -42,6 +43,7 @@ class EditUserForm(FlaskForm):
     cash_balance = IntegerField('Cash Balance', validators=[DataRequired()])
     user_type = SelectField('User Type', validators=[DataRequired()], choices=['Parent', 'Child', 'Friend'])
     is_active = SelectField('Is Active', validators=[DataRequired()], choices=['Yes', 'No'])
+    approval_code = IntegerField('Approver Code', validators=[DataRequired()])
     submit = SubmitField('Save Changes')
 
     # def validate_username(self, username):
@@ -100,4 +102,9 @@ class AssignChoreForm(FlaskForm):
     assigned_by = QuerySelectField(query_factory=user_parent_query,  validators=[DataRequired()],
                                   get_label='username', default='Select')
     submit = SubmitField('Save')
+
+class ChoreApproval(FlaskForm):
+    approved_by = QuerySelectField(query_factory=user_parent_query, validators=[DataRequired()], get_label='username')
+    approval_code = IntegerField('Approval Code', validators=[DataRequired()])
+    submit = SubmitField('Approve')
 

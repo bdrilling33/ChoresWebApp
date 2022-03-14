@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-
+{% import 'bootstrap/wtf.html' as wtf %}
 {% block app_content %}
 
         <h1>
@@ -26,11 +26,22 @@
                 <td id="occr">{{ chore.occurrence }}</td>
                 <td id="by">{{ chore.value }}</td>
                 <td>
+            {% if chore.status == 'Pending' %}
+                    <a class="btn btn-warning btn-complete btn-sm">Pending Approval</a>
+                    <a  href="/chore_progress/{{ chore.id }}/approve"
+                                                        class="btn btn-danger btn-approve btn-sm">Approve</a>
+
+            {% elif chore.status == 'Completed' %}
+
+                    <a class="btn btn-success btn-approved btn-sm">Approved</a>
+
+            {% else %}
 
                     <a  href="/chore_progress/{{ chore.id }}/completed"
-                                                        class="btn btn-warning btn-edit btn-sm">Completed!!</a>
-                    <a  href="/chore_progress/{{ chore.id }}/approvetoggle"
-                                                        class="btn btn-danger btn-delete btn-sm">Incomplete</a>
+                                                        class="btn btn-warning btn-complete btn-sm">Completed!!</a>
+                    <a  href="/chore_progress/{{ chore.id }}/approve"
+                                                        class="btn btn-danger btn-incomp btn-sm">Incomplete</a>
+            {% endif %}
                 </td>
                 <td> {{ chore.status }}</td>
             </tr>
@@ -38,6 +49,13 @@
             {% endfor %}
           </tbody>
             </table>
+
+
+<script>
+
+
+
+</script>
 
 
 {% endblock %}

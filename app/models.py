@@ -17,6 +17,7 @@ class User(UserMixin, db.Model):
     assigned_chores = db.relationship('ChoreAssignments', backref='assigned_to')
     created_chores = db.relationship('ChoreList', backref='created_by')
     is_active = db.Column(db.String(3), default='Yes')
+    approval_code = db.Column(db.Integer, default=0)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
